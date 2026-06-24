@@ -1,0 +1,62 @@
+**How does LLM routing work — specifically, how do systems detect whether to send a query to a cheap/small model vs a large model?
+
+**There are 5 main approaches:
+
+1. **Rule-based** — hardcoded logic on token count/keywords
+2. **Classifier model** — a cheap model classifies task complexity, then routes
+3. **Embedding similarity** — cosine similarity against pre-labeled clusters
+4. **Dedicated router models** — RouteLLM, Martian, Not Diamond
+5. **Heuristic scoring** — numeric score from length, question count, keywords
+
+In RAG specifically, routing also decides whether to retrieve at all. Most production systems use a cheap classifier model + a routing map.
+
+**BM25s**
+this is a kind of key word matching search library which uses **TF-IDF** model to search for the matching text in the corpus. this is better than normal text matching because it also consider the rarity of the query text and and the size of the chunk in the content
+
+**Reciprocal Rank Fusion**
+This is a simple algorithm used to combine two (or more) already ranked lists into a single ranking. It relies only on the position (rank) of each item in its original list.
+
+The score for each item is calculated as:
+
+$$
+\text{score} = \frac{1}{k + \text{rank}}  
+$$
+- **rank** = position of the item in its list (1 = top result)
+- **k** = a constant (usually **60**) that reduces the impact of rank differences
+
+How it works:
+- Each item gets a score from every list it appears in
+- All its scores are **added together**
+- Items are then sorted by their **final combined score**
+
+Why it works well:
+- Higher-ranked items contribute more (lower rank → higher score)
+- Lower-ranked items still contribute, but much less
+- The constant **k = 60** smooths the scores so one list doesn’t dominate
+
+| Chunk                 | FAISS Rank | BM25 Rank | RRF Score                           |
+| --------------------- | ---------- | --------- | ----------------------------------- |
+| "Working Hour Limits" | not found  | 1         | 0 + 0.0164 = **0.0164**             |
+| Two-jobs violation    | not found  | 2         | 0 + 0.0161 = **0.0161**             |
+| アルバイト guide           | 2          | not found | 0.0161 + 0 = **0.0161**             |
+| Consequences chunk    | 5          | 4         | 0.0154 + 0.0156 = **0.0310** ← wins |
+In short:  
+RRF (Reciprocal Rank Fusion) merges rankings by rewarding items that consistently appear near the top across multiple lists.
+
+**Max-Min Chunking**
+Max min chunking is a kind of chunking strategy in which each sentence is converted in to embedding and then one sentence is made first chunk then the algorithm starts by comping the next embedding and see if it is close enough to the chunk to be included in previous chunk or to make another separate and then same happens for next sentence it is compared to all the old chunk.
+
+This is mostly used in a very long docs which to keep all the topics together.
+
+**Query Based Chunking**
+A dynamic retrieval technique in RAG where text chunk sizes are decided at runtime based on the user's question, rather than using fixed boundaries during ingestion. 
+Core Problem Solved: Static chunking provides too much noise for simple questions (e.g., specific metrics) and too little context for complex ones (e.g., architectural summaries).
+
+Key Mechanics
+* Ingestion: Text is indexed hierarchically at multiple levels (sentences, paragraphs, sections).
+* Retrieval Planner: A lightweight router evaluates the complexity of the incoming user query.
+* Adaptive Extraction: The system dynamically pulls either a narrow or broad context window to match the query's specific scope.
+
+* Pros: Minimizes LLM noise, reduces token usage, and eliminates chunk-size guessing games.
+* Cons: Introduces minor retrieval latency due to the dynamic planning step. 
+

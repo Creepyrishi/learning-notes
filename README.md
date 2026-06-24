@@ -1,0 +1,1 @@
+I stated Keeping notes while studying.
