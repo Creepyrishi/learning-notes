@@ -154,3 +154,12 @@ async def main():
 
 Both tasks will be created and awaited automatically.
 
+
+**asyncio.wait**
+this is used to run multiple task at the same time and block the execution of the function when a specific condition is met.
+
+```python
+tasks = [task1, task2, task2]
+done, pending = await asyncio.wait(tasks, timeout=None, return_when=ALL_COMPLETED)
+```
+
