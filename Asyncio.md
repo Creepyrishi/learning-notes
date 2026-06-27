@@ -1,4 +1,3 @@
-https://www.youtube.com/watch?v=oAkLSJNr5zY
 #### Terminologies
 
 1. Event loop

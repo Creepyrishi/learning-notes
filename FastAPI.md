@@ -74,7 +74,19 @@ Mental model
 - Use wrappers/classes when you need **custom inputs**
 
 
+**Webhooks**
 
+
+
+
+
+
+1. Uvicorn, asgi, starlet
+2. cookies
+3. pollings
+compelete converstaional ai by tmmrow
+
+https://medium.com/@rwilliams_bv/intro-to-databases-for-people-who-dont-know-a-whole-lot-about-them-a64ae9af712
  cerery, boto for s3, docker, redis
  https://www.youtube.com/watch?v=RIVcqT2OGPA
  git

@@ -1,14 +1,52 @@
-
-Docker runs apps as **isolated containers** built from **images**, defined via **Dockerfile**, and managed via **Docker Compose** for multi-service apps.
-
-## 1. Mental flow (must know)
+When using a System there are 4 layer: 
+```
+[APPLICAIONS]
+[OS Application] <- Docker virtualizes this  | VM Virtualizes
+[OS Kernel]                                  | Both
+[System Hardware]
+```
 
 ```
 Dockerfile → Image → Container → Running App
            (build)   (run)
 ```
 
-## 2. Context
+**Writting a Dockerfile**
+a base image that have the core softare that we need is installed, like Nodejs or python. they are literally  a linux distro but with the a required software.
+
+`FROM`
+
+Dockerfile can be build using 
+`docker build -t <name> <path of the dockerfile>`
+
+Docker runs apps as **isolated containers** built from **images**, defined via **Dockerfile**, and managed via **Docker Compose** for multi-service apps.
+
+**Docker compose**
+```yml
+services:
+	<container_name>:
+	    build:
+	      context: ./Backend
+	      dockerfile: Dockerfile
+		image: <image name>
+		ports:
+		  - "2020:2020"
+		environments:
+			ENV1=sec
+		depends_on:
+			- <name of another container on which it depnds on>
+		
+```
+
+
+i might need to to use variables instead of hard-codded thing in say secrets in that case we use
+```
+environments:
+	ENV1=${SECRET_}
+```
+
+
+ **2. Context  and engine** 
 
 Controls _which Docker engine you are using_.
 
@@ -62,12 +100,13 @@ docker compose up -d      # start everything
 docker compose down       # stop everything
 docker compose ps         # check services
 docker compose logs       # see logs
+docker compose stop       # stop container without deleting it
 docker compose build      # rebuild images
 ```
 
 This will build the container from the image then start it
 ```bash
-docker compose up <name of container> --build
+docker compose -f <docker compose file path> up <name of container> --build
 ```
 ---
 
@@ -104,7 +143,7 @@ docker network ls
 docker network inspect NAME
 ```
 
-## 9. Your real debugging checklist (use this always)
+## 9. debugging checklist 
 
 If something “doesn’t work”:
 
