@@ -1,1 +1,1 @@
-I stated Keeping notes while studying.
+I started Keeping notes while studying.
