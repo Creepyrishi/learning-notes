@@ -72,7 +72,51 @@ async def get_user_data(user_id: int):
 
 ```
 
- 
+**making AsyncSession generator**
+Async session generator generates a AsyncSesssion and give it to a what evey called that generator. this generator is context managed which mean the db session will be closed and cleaned up automatically
+
+this is a generator function
+```python
+async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+```
+
+we need to use async generator when we need to use the session and keep it open even after getting out of the context
+
+```python
+    async def getClient(self) -> AsyncGenerator:
+        try:
+            client = Client(api_key=str(settings.GEMINI_API_KEY))
+            async with client.aio.live.connect(
+                model=settings.GEMINI_LIVE_MODEL, config=self.Config
+            ) as session:
+                # we cannot use return here because when we return the session 
+                # get automatically closed beacuse we are going out of the 
+                # async with context so we need to use asyncgenerator
+                
+                
+                # return session
+                yield session
+
+        except Exception:
+            raise
+
+```
+
+As soon as `return session` happens, Python exits the `async with` block. That calls cleanup on the live connection. So the caller receives a session whose context has already been closed or is about to be closed.
+
+Use an async generator/context manager if the caller needs to use the session while keeping the connection open
+
+this is mostly true for context managers if want to use any thing from `with` in some place we might need to make generator in both `async` and `sync`
+
+
+
  **What is func and func.count in the sqlalchamy
  
 ```python

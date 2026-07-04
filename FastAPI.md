@@ -74,17 +74,107 @@ Mental model
 - Use wrappers/classes when you need **custom inputs**
 
 
+**Dependencies**
+with dependencies we can insert anything in the route function it is more like calling any function or classes before doing the route function
+
+there are 2 main ways to add dependencies 
+1. is to add a particular path 
+```python
+@router.get("/hello")
+async def hello( db : Annoted[AsyncSession, Depends(get_db_Sessio)]):
+	pass
+```
+2. another way is to just add to whole route level
+```python
+router = APIRouter(
+prefix="/admin",
+dependencies = [Depends(is_admin)]
+)
+```
+
+in dependencies we cannot pass the arguments to the function normally. 
+meaning we cannot do this:
+```python
+@router.get("/hello")
+async def hello( db : Annoted[AsyncSession, Depends(get_db_Sessio("example"))]):
+	pass
+
+```
+
+be we might need to pass sometime for that there are two ways
+1. using callable class
+2. using factory function
+
+**Using Callable class**
+we use `__call__` to make the class callable it self
+
+in this method we pass the arguments to the `__init__` and then make that class callable via `__call__` which will be be called when the request arrives
+
+```python
+
+class CheckRole:
+	async def __init__(self, allowed_role: str):
+		self.allowed_role = allowed_role
+	
+	async def __call__(self, current_user = Depends(get_current_user)):
+		if self.allowed_role != current_user.role:
+			return HTTPException(details="dont have proper role")
+			
+
+@router.get("/delete")
+async def delete(check_role = Depends(CheckRole("admin"))):
+	pass
+		
+```
+
+`CheckRole("admin")` with call init when defining the route and when the request comes then the whole class will be called like an function
+
+**Using factory function method**
+in this we will have inner function doing actual fastapi things.
+```python
+# 1. Outer factory function accepts your static arguments
+def verify_token_prefix(prefix: str):
+    
+    # 2. Inner function handles the actual FastAPI request parameters
+    def verifier(authorization: Annotated[str, Header()]):
+        if not authorization.startswith(prefix):
+            raise HTTPException(status_code=401, detail="Invalid token prefix")
+        return authorization
+
+    return verifier
+
+# 3. Call the factory function inside Depends() to generate the dependency
+@app.get("/secure-data")
+def get_data(token: Annotated[str, Depends(verify_token_prefix("Bearer "))]):
+    return {"status": "success", "token_used": token}
+
+```
+
+**HTTPBearer()**
+this is a fastapi security scheme which returns a `HTTPAuthorizationCredentials` object  with `.credentials` which gives the raw token sting, fetched from the header, after removing prefix like Brear and it also return exception when its missing.
+
+it reads `Authorization: Bearer <token>` from the header
+
+```python
+bearer_scheme = 
+async def get_current_user(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
+) -> User:
+    token = credentials.credentials
+```
+
 **Webhooks**
 
 
 
+transcript_by_turn.setdefault(turn, []).append( sc.input_transcription.text ) what does this do if transcript_by_turn: dict[int, list[str]]
 
+send_to_user already calls ws.send_json/send_bytes, and get_user_text can too (for error messages) — both running as concurrent asyncio tasks on the same socket already, with no lock. Adding background assessment tasks means potentially 3+ coroutines calling ws.send_json concurrently. Starlette/ASGI doesn't guarantee safety for that. Should I add a simple asyncio.Lock around all ws sends to make this safe, or leave it as-is (matching the existing pattern, where this risk already technically exists with 2 tasks)?
 
-
+git precomit and setting up ruff 
 1. Uvicorn, asgi, starlet
 2. cookies
 3. pollings
-compelete converstaional ai by tmmrow
 
 https://medium.com/@rwilliams_bv/intro-to-databases-for-people-who-dont-know-a-whole-lot-about-them-a64ae9af712
  cerery, boto for s3, docker, redis

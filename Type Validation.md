@@ -25,3 +25,16 @@
 * When to use:
   When libraries need more info about your types.
 
+```python
+from pydantic import BaseModel
+
+class User(BaseModel):
+    id: int
+    name: str
+
+user = User(id=1, name="Alice")
+
+# Convert to dict
+user_dict = user.model_dump()
+print(user_dict)  # {'id': 1, 'name': 'Alice'}
+```

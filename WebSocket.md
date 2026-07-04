@@ -75,3 +75,16 @@ a browser web-socket cannot set `Authorization: Bearer <token>` but other client
 so if making for the browser we may send `token`  via query parameter and then verify that. or we might use  cookies  as it is always send with every request or do first message auth meaning we always accept the connection and then we assume the first message as the auth token and then process it.
 
 if not making for browser using header is fine.
+
+
+There few things that are similar to web sockets
+**polling**
+polling is like client making repeated calls to the back-end to get new data which is unlike the webs-ockers. 
+
+there are 2 types of polling.
+**short polling:** in this say the fronted make request in fixed interval and the back-end responds immediately  ever data it have. it will have more waste bandwidth
+
+**long polling**: here the when client make the request to the back-end it don't response immediately rather it waits for new data and then send it to the client (meaning it holds on to the request ) or time out hits and the connection is drops. if the connection drops client again send the request.
+
+**server-side-events**
+in short fronted initiate the the connection and subscribe to any event and the backed sends the data later when it is available 
