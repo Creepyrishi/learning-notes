@@ -166,6 +166,16 @@ async def get_current_user(
 **Webhooks**
 
 
+say we are using process and celery and we doing something that involves memory say we are loading a index via FIASS and we want to keep that in memory but process and celery work on their own memory how can we use it from different instance
+
+what was that something that we can use to not load somehing in memory rather we can point it to our disk idk what was it
+
+
+
+
+session middleware fastapi
+_IncludedRouter
+Que
 
 transcript_by_turn.setdefault(turn, []).append( sc.input_transcription.text ) what does this do if transcript_by_turn: dict[int, list[str]]
 
@@ -174,20 +184,7 @@ send_to_user already calls ws.send_json/send_bytes, and get_user_text can too (f
 git precomit and setting up ruff 
 1. Uvicorn, asgi, starlet
 2. cookies
-3. pollings
-
-https://medium.com/@rwilliams_bv/intro-to-databases-for-people-who-dont-know-a-whole-lot-about-them-a64ae9af712
- cerery, boto for s3, docker, redis
- https://www.youtube.com/watch?v=RIVcqT2OGPA
- git
- TF-IDF
- creating corn jobs and auto run script in linux
- RAG eval
- __future__ and Context managing, asycnio.semaphor
- https://www.youtube.com/watch?v=oAkLSJNr5zY
- KV cache optimization, sliding window attention, memory compression techniques
- [context refinement](https://chatgpt.com/c/6a2b90db-54d4-83ee-978b-82d628d0d218)
 
 
-https://www.youtube.com/playlist?list=PL-osiE80TeTsak-c-QsVeg0YYG_0TeyXI
-this have a lot of thing that i want to learn this is fastapi tutorial  it have almeic, boto aws, postgres, etc etc check it out
+RAG eval
+ROPE

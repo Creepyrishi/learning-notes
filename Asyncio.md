@@ -163,3 +163,45 @@ tasks = [task1, task2, task2]
 done, pending = await asyncio.wait(tasks, timeout=None, return_when=ALL_COMPLETED)
 ```
 
+**Thread vs Process vs celery**
+
+thread share memory with in the same process but different process or celery workers have separate memory and spawning the process cost more than thread. in the case of FAISS load and build i was doing it using thread was better. and as FAISS is written in c++ it automatically releases the GIL when doing heavy computation
+
+Process are only good when doing pure-python cpu bound work
+
+**asyncio.semaphor**
+Semaphore is used to limit the total number of tasks that we want to run at a single time. 
+
+```python
+import asyncio
+
+# 1. Create a semaphore that allows a max of 3 concurrent tasks
+sem = asyncio.Semaphore(3)
+
+async def access_resource(task_id):
+    # 2. Wait in line until a slot is free
+    async with sem:
+        print(f"Task {task_id} is inside the room.")
+        await asyncio.sleep(2)  # Simulating some I/O work
+        print(f"Task {task_id} is leaving.")
+
+async def main():
+    # Trigger 10 tasks all at once
+    tasks = [access_resource(i) for i in range(10)]
+    await asyncio.gather(*tasks)
+
+asyncio.run(main())
+```
+
+```
+Task 0 is inside the room.
+Task 1 is inside the room.
+Task 2 is inside the room.  <-- Stops here! The first 3 take all the keys.
+(2 second pause...)
+Task 0 is leaving.
+Task 3 is inside the room.  <-- Task 3 grabs the key Task 0 just dropped.
+Task 1 is leaving.
+Task 4 is inside the room.
+```
+
+semaphore uses `.accuire()` and `.release()` under the hood we might use it when we use the semaphore without a context manager. but using with context manager is the best
