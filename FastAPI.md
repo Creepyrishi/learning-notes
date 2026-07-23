@@ -188,3 +188,5 @@ git precomit and setting up ruff
 
 RAG eval
 ROPE
+
+why is not None
