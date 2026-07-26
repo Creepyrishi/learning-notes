@@ -24,10 +24,10 @@ async def addDocument(db: AsyncSession):
     rows = result.fetchall()
 ```
 
+**Problem**: SQLAlchemy Enum(StatusEnum, native\_enum=True) uses enum member names (CHUNKED, SUMMARIZED, EMBEDDED) as database values instead of string values (chunked, summarized, embedded).
+**Error**: invalid input value for enum status\_enum: "CHUNKED" — DB expects lowercase, got uppercase.
+**Fix**: Add values\_callable to map enum → .value:
 
-**Problem**: SQLAlchemy Enum(StatusEnum, native_enum=True) uses enum member names (CHUNKED, SUMMARIZED, EMBEDDED) as database values instead of string values (chunked, summarized, embedded).
-**Error**: invalid input value for enum status_enum: "CHUNKED" — DB expects lowercase, got uppercase.
-**Fix**: Add values_callable to map enum → .value:
 ```python
 status: Mapped[StatusEnum] = mapped_column(
     Enum(
@@ -40,11 +40,9 @@ status: Mapped[StatusEnum] = mapped_column(
 )
 ```
 
-
-
 **Diffrence between AsyncSession and AsyncSessionLocal**
 
-AsyncSession is object of sqlalchamy which is used to perform non blocking i/o in db. And AsycnSessionLocal is convention that was made popular in fastapi docs which is of type AsycnSession and is returned my async_sessionmaker() fucntion. It is used with context to execute query on the db.
+AsyncSession is object of sqlalchamy which is used to perform non blocking i/o in db. And AsycnSessionLocal is convention that was made popular in fastapi docs which is of type AsycnSession and is returned my async\_sessionmaker() fucntion. It is used with context to execute query on the db.
 
 ```python
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -76,6 +74,7 @@ async def get_user_data(user_id: int):
 Async session generator generates a AsyncSesssion and give it to a what evey called that generator. this generator is context managed which mean the db session will be closed and cleaned up automatically
 
 this is a generator function
+
 ```python
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
@@ -115,17 +114,16 @@ Use an async generator/context manager if the caller needs to use the session wh
 
 this is mostly true for context managers if want to use any thing from `with` in some place we might need to make generator in both `async` and `sync`
 
+\*\*What is func and func.count in the sqlalchamy
 
-
- **What is func and func.count in the sqlalchamy
- 
 ```python
 from sqlalchemy import func
 ```
 
-func is a sql function generator. sql databases have some predefined function that we can call via sql for eg **COUNT(\*)**  This will sum the rows. 
+func is a sql function generator. sql databases have some predefined function that we can call via sql for eg **COUNT(\*)**  This will sum the rows.
 
 now to use it via sqlalchemy we need to use func like
+
 ```python
 result = session.execute(select(func.count()).select_from(User).where(User.age>30))
 result = result.scalar()
@@ -138,3 +136,5 @@ WHERE age > 30;
 ```
 
 Some database lets us create custom function too.
+
+database pool
