@@ -1,6 +1,4 @@
-# My C++ Notes
-
-These notes combine the notes from my copy and the older Markdown file. I have kept every topic and idea that I wrote, but put the topics in a LearnCpp-style order. Clear spelling mistakes, incomplete code, and clear C++ mistakes are fixed in the same simple note-taking style.
+# C++
 
 ## Contents
 
@@ -1389,5 +1387,3 @@ int main()
     return 0;
 }
 ~~~
-
----
